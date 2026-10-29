@@ -1,0 +1,499 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Theme preset styles: these override CSS variables based on the selected data-theme-preset */
+@import "../styles/presets/brutalist.css";
+@import "../styles/presets/soft-pop.css";
+@import "../styles/presets/tangerine.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+
+  /* Landing page tokens. Values live on [data-landing-page] so they never leak
+     into the dashboard, which keeps its own OKLCH theme and presets. */
+  --color-landing-ink: var(--landing-ink);
+  --color-landing-paper: var(--landing-paper);
+  --color-landing-surface: var(--landing-surface);
+  --color-landing-foreground: var(--landing-foreground);
+  --color-landing-muted: var(--landing-muted);
+  --color-landing-muted-foreground: var(--landing-muted-foreground);
+  --color-landing-subtle: var(--landing-subtle);
+  --color-landing-accent: var(--landing-accent);
+  --color-landing-accent-tint: var(--landing-accent-tint);
+  --color-landing-hairline: var(--landing-hairline);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
+
+  --text-display-xl: 4.5rem;
+  --text-display-xl--line-height: 0.98;
+  --text-display-xl--letter-spacing: -0.035em;
+  --text-display-lg: 3.625rem;
+  --text-display-lg--line-height: 1;
+  --text-display-lg--letter-spacing: -0.03em;
+  --text-display-md: 2.25rem;
+  --text-display-md--line-height: 1.05;
+  --text-display-md--letter-spacing: -0.025em;
+
+  --font-display: var(--font-instrument-serif);
+}
+
+/* Default theme styles (used when no data-theme-preset is set or when 'default' is selected).
+These serve as the fallback; there is no separate default.css file. */
+:root {
+  --radius: 0.625rem;
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* fonts */
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+
+  /* Brand accent — shared by auth screens and the landing page. */
+  --brand-accent: oklch(0.665 0.213 27.6);
+  --brand-accent-foreground: oklch(1 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  --brand-accent: oklch(0.665 0.213 27.6);
+  --brand-accent-foreground: oklch(1 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer utilities {
+  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-2xs {
+    box-shadow: var(--shadow-2xs);
+  }
+
+  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-xs {
+    box-shadow: var(--shadow-xs);
+  }
+
+  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  [data-theme-preset]:not([data-theme-preset="default"]) .shadow {
+    box-shadow: var(--shadow);
+  }
+
+  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-xl {
+    box-shadow: var(--shadow-xl);
+  }
+
+  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-2xl {
+    box-shadow: var(--shadow-2xl);
+  }
+
+  html[data-font="inter"] body {
+    --font-sans: var(--font-inter);
+  }
+  html[data-font="geist"] body {
+    --font-sans: var(--font-geist);
+  }
+  html[data-font="geistMono"] body {
+    --font-sans: var(--font-geist-mono);
+  }
+  html[data-font="instrumentSerif"] body {
+    --font-sans: var(--font-instrument-serif);
+  }
+
+  /* The landing page sets its own type stack inside [data-landing-page]; see the
+     landing block below. Nothing to override here. */
+}
+
+/* Landing page palette, matching the Applio Framer design (ink rgb(12,12,12),
+   body text rgb(77,77,77)). The landing is intentionally light-only — the
+   dark-mode overrides were removed so the sky imagery and white cards render
+   identically regardless of the dashboard theme preference. Scoped with
+   [data-landing-page] so dashboard screens and theme presets are unaffected. */
+[data-landing-page] {
+  --landing-ink: oklch(0.165 0 0);
+  --landing-paper: oklch(1 0 0);
+  --landing-surface: oklch(1 0 0);
+  --landing-foreground: oklch(0.165 0 0);
+  --landing-muted: oklch(0.972 0.002 106);
+  --landing-muted-foreground: oklch(0.53 0 0);
+  --landing-subtle: oklch(0.799 0 0);
+  --landing-accent: oklch(0.665 0.213 27.6);
+  --landing-accent-tint: oklch(0.976 0.008 25);
+  --landing-hairline: oklch(0 0 0 / 8%);
+
+  /* shadcn primitives (Button, Accordion, Sheet, Input) read the base tokens,
+     so pin them here too: a saved dashboard preset cannot restyle the landing. */
+  --background: var(--landing-paper);
+  --foreground: var(--landing-foreground);
+  --card: var(--landing-surface);
+  --card-foreground: var(--landing-foreground);
+  --popover: var(--landing-paper);
+  --popover-foreground: var(--landing-foreground);
+  --primary: var(--landing-ink);
+  --primary-foreground: var(--landing-paper);
+  --secondary: var(--landing-muted);
+  --secondary-foreground: var(--landing-foreground);
+  --muted: var(--landing-muted);
+  --muted-foreground: var(--landing-muted-foreground);
+  --accent: var(--landing-muted);
+  --accent-foreground: var(--landing-foreground);
+  --border: var(--landing-hairline);
+  --input: var(--landing-hairline);
+  --ring: var(--landing-accent);
+  --radius: 0.625rem;
+
+  /* Landing type stack. Instrument Sans and JetBrains Mono are loaded by the
+     (external) route layout; Instrument Serif comes from the global registry. */
+  --font-sans: var(--font-instrument), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-display: var(--font-instrument-serif), Georgia, serif;
+
+  font-family: var(--font-sans);
+  background-color: var(--landing-paper);
+  color: var(--landing-foreground);
+}
+
+/* Landing marquee: duplicated list scrolls by exactly half its width. */
+@keyframes landing-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.landing-marquee {
+  animation: landing-marquee 36s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-marquee {
+    animation: none;
+  }
+}
+
+html {
+  overscroll-behavior: none;
+}
+
+html:has([data-landing-page]) {
+  view-transition-name: none;
+}
+
+/* Giant footer wordmark, fading out towards the page edge. */
+.landing-wordmark {
+  mask-image: linear-gradient(to bottom, black 30%, transparent 92%);
+  -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 92%);
+}
+
+.disable-transitions * {
+  transition: none !important;
+}
+
+[data-print-root] {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: Letter;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 8.5in !important;
+    height: 11in !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body > *:not([data-print-root]) {
+    display: none !important;
+  }
+
+  [data-print-root] {
+    display: block !important;
+    width: 8.5in !important;
+    height: 11in !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    background: white !important;
+  }
+
+  [data-print-root] [data-print-paper] {
+    width: 8.5in !important;
+    height: 11in !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+
+  [data-print-root] [data-print-paper],
+  [data-print-root] [data-print-paper] * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Landing page utilities
+   Scoped to [data-landing-page] so nothing here can reach the dashboard.
+   --------------------------------------------------------------------------- */
+
+@keyframes landing-marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes landing-char-in {
+  0% {
+    opacity: 0;
+    filter: blur(40px);
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes landing-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes landing-line-reveal {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes landing-char-reveal {
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+[data-landing-page] .marquee {
+  animation: landing-marquee 36s linear infinite;
+}
+
+[data-landing-page] .marquee-reverse {
+  animation: landing-marquee-reverse 36s linear infinite;
+}
+
+[data-landing-page] .animate-char-in {
+  opacity: 0;
+  filter: blur(40px);
+  transform: translateY(100%);
+  animation: landing-char-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+[data-landing-page] .text-stroke {
+  -webkit-text-stroke: 1.5px currentColor;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-landing-page] .code-line-reveal {
+  opacity: 0;
+  transform: translateX(-8px);
+  animation: landing-line-reveal 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+[data-landing-page] .code-char-reveal {
+  opacity: 0;
+  filter: blur(8px);
+  animation: landing-char-reveal 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+[data-landing-page] .noise-overlay {
+  position: relative;
+}
+
+[data-landing-page] .noise-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-landing-page] .code-progress {
+  animation: landing-progress 5s linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-landing-page] .marquee,
+  [data-landing-page] .marquee-reverse,
+  [data-landing-page] .animate-char-in,
+  [data-landing-page] .code-line-reveal,
+  [data-landing-page] .code-char-reveal,
+  [data-landing-page] .code-progress {
+    animation: none;
+  }
+
+  [data-landing-page] .animate-char-in,
+  [data-landing-page] .code-line-reveal,
+  [data-landing-page] .code-char-reveal {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+[data-landing-page] .dev-code-line {
+  opacity: 0;
+  transform: translateX(-8px);
+  animation: landing-line-reveal 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+[data-landing-page] .dev-code-char {
+  opacity: 0;
+  filter: blur(8px);
+  animation: landing-char-reveal 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-landing-page] .dev-code-line,
+  [data-landing-page] .dev-code-char {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    animation: none;
+  }
+}
