@@ -427,6 +427,28 @@ html:has([data-landing-page]) {
   -webkit-text-fill-color: transparent;
 }
 
+/* Instrument Serif ships one weight, so the utility pins it rather than letting a
+   heading inherit a bold that the face cannot render. */
+[data-landing-page] .font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+/* Tailwind's `font-mono` inlines its own stack, which would skip the JetBrains
+   face loaded by the marketing layout. This reads the local variable instead. */
+[data-landing-page] .landing-mono {
+  font-family: var(--font-mono);
+}
+
+/* Soft sky wash behind the hero: two accent-tinted radial pools, no image. */
+[data-landing-page] .landing-sky {
+  background-image:
+    radial-gradient(ellipse 70% 55% at 50% -10%, oklch(0.93 0.045 30 / 85%), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 85% 8%, oklch(0.95 0.03 250 / 70%), transparent 70%),
+    radial-gradient(ellipse 40% 35% at 8% 12%, oklch(0.96 0.025 90 / 70%), transparent 70%);
+}
+
 [data-landing-page] .code-line-reveal {
   opacity: 0;
   transform: translateX(-8px);
@@ -455,6 +477,53 @@ html:has([data-landing-page]) {
 
 [data-landing-page] .code-progress {
   animation: landing-progress 5s linear forwards;
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll-driven reveal.
+
+   Deliberately CSS and not an IntersectionObserver: if the observer never fires
+   the content stays at opacity 0, which is a blank landing page. A scroll
+   timeline cannot fail that way — and where `animation-timeline` is unsupported
+   the @supports block below leaves everything visible with no animation at all.
+
+   `--reveal-shift` staggers a list: each item starts its reveal a little later in
+   the scroll range, which is what produces the cascade without any JS.
+   --------------------------------------------------------------------------- */
+@keyframes landing-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-landing-page] .reveal {
+  --reveal-shift: 0%;
+  animation-name: landing-reveal-in;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-timeline: view();
+  animation-range: entry calc(6% + var(--reveal-shift)) entry calc(52% + var(--reveal-shift));
+}
+
+@supports not (animation-timeline: view()) {
+  [data-landing-page] .reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-landing-page] .reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
