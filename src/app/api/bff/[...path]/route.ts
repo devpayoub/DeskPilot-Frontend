@@ -15,15 +15,7 @@ export const dynamic = "force-dynamic";
  * These are DeskPilot's resource roots. `auth` is deliberately absent: login,
  * refresh and logout have their own routes that manage the session cookies.
  */
-const ALLOWED_PREFIXES = new Set([
-  "tickets",
-  "runs",
-  "tools",
-  "guardrails",
-  "evals",
-  "directory",
-  "stats",
-]);
+const ALLOWED_PREFIXES = new Set(["tickets", "runs", "tools", "guardrails", "evals", "directory", "org", "stats"]);
 
 const SAFE_SEGMENT = /^[A-Za-z0-9._~-]+$/;
 

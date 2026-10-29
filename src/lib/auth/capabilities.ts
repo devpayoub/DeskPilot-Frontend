@@ -22,6 +22,13 @@ export const CAPABILITIES = [
   "directory:read",
   "policy:write",
   "killswitch:write",
+  // Tenancy. `org:read` is "see which account I am in"; the two `:manage` entries
+  // are what a *client administrator* — not a platform operator — is allowed to do
+  // inside their own account.
+  "org:read",
+  "member:read",
+  "department:manage",
+  "member:manage",
 ] as const;
 
 export type Capability = (typeof CAPABILITIES)[number];
@@ -31,19 +38,31 @@ export type Capability = (typeof CAPABILITIES)[number];
  * can never trigger the agent, approve anything, or look at another person's
  * account, which is also what the API enforces.
  */
-const REQUESTER: Capability[] = ["ticket:read"];
+const REQUESTER: Capability[] = ["ticket:read", "org:read"];
 
-const SERVICE_DESK: Capability[] = [...REQUESTER, "ticket:write", "tool:read", "approval:read", "audit:read", "usage:read"];
-
-const TECHNICIAN: Capability[] = [
-  ...SERVICE_DESK,
-  "run:trigger",
-  "tool:invoke",
-  "approval:decide",
-  "directory:read",
+const SERVICE_DESK: Capability[] = [
+  ...REQUESTER,
+  "ticket:write",
+  "tool:read",
+  "approval:read",
+  "audit:read",
+  "usage:read",
+  // Seeing who is in the account is a desk-level thing; changing it is not.
+  "member:read",
 ];
 
-const ADMIN: Capability[] = [...TECHNICIAN, "eval:read", "policy:write", "killswitch:write"];
+const TECHNICIAN: Capability[] = [...SERVICE_DESK, "run:trigger", "tool:invoke", "approval:decide", "directory:read"];
+
+const ADMIN: Capability[] = [
+  ...TECHNICIAN,
+  "eval:read",
+  "policy:write",
+  "killswitch:write",
+  // Adding departments and people to your own account. Scoped server-side to the
+  // organisation in the session — this flag never grants cross-tenant access.
+  "department:manage",
+  "member:manage",
+];
 
 export const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
   REQUESTER,

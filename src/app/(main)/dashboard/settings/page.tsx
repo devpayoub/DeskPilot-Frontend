@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { serverFetch } from "@/lib/api/server";
@@ -12,7 +11,10 @@ export const metadata: Metadata = {
 
 type KillSwitch = { state: "open" | "paused" | "halted" };
 
-const STATE_COPY: Record<KillSwitch["state"], { label: string; body: string; variant: "secondary" | "destructive" | "outline" }> = {
+const STATE_COPY: Record<
+  KillSwitch["state"],
+  { label: string; body: string; variant: "secondary" | "destructive" | "outline" }
+> = {
   open: {
     label: "Open",
     body: "Tools run normally. Writes still stop at the approval gate.",
@@ -40,8 +42,6 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title="Settings" description="The switches that decide how much the agent is allowed to do." />
-
       <Card className="py-0">
         <CardContent className="flex flex-col gap-2 p-4">
           <div className="flex items-center gap-2">
@@ -65,8 +65,7 @@ export default async function SettingsPage() {
           <p className="text-muted-foreground text-sm">
             Unless <span className="font-mono text-foreground">SAFE_MODE=0</span> and{" "}
             <span className="font-mono text-foreground">ALLOW_REAL_WRITES=1</span> are both set, remediation tools run
-            against a simulated host. This checkout cannot delete a file or restart a service on the machine hosting
-            it.
+            against a simulated host. This checkout cannot delete a file or restart a service on the machine hosting it.
           </p>
         </CardContent>
       </Card>

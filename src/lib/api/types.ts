@@ -26,17 +26,52 @@ export type User = {
   is_active: boolean;
 };
 
-/** DeskPilot is single-tenant; the API returns exactly one of these. */
+/** One person's place in one organisation. Role is per account, not per user. */
 export type Membership = {
   organization_id: string;
   organization_name: string;
   organization_slug: string;
   role: Role;
+  department?: { id: number; name: string } | null;
+  is_owner?: boolean;
 };
 
 export type MeResponse = {
   user: User;
   memberships: Membership[];
+  active_organization?: Membership;
+};
+
+/** An operator org unit inside one account. Not an AD directory department. */
+export type Department = {
+  id: number;
+  name: string;
+  code: string;
+  parent_id: number | null;
+  is_active: boolean;
+  member_count: number | null;
+  created_at: string;
+};
+
+export type OrganizationMember = {
+  id: number;
+  user_id: string;
+  email: string;
+  full_name: string;
+  role: Role;
+  department_id: number | null;
+  department_name: string | null;
+  is_owner: boolean;
+  is_active: boolean;
+  status: "active" | "invited" | "disabled";
+  created_at: string;
+  accepted_at: string | null;
+  /** Returned only by the create response, and only once. */
+  initial_password?: string;
+  /** Present only when an invitation was issued through the API. */
+  invite_token?: string;
+  invite_expires_at?: string | null;
+  accept_url?: string;
 };
 
 export type LoginResponse = {
@@ -65,37 +100,17 @@ export type Paginated<T> = {
 };
 
 // -- tickets ----------------------------------------------------------------
-export type TicketStatus =
-  | "new"
-  | "in_progress"
-  | "awaiting_agent"
-  | "awaiting_user"
-  | "resolved"
-  | "closed";
+export type TicketStatus = "new" | "in_progress" | "awaiting_agent" | "awaiting_user" | "resolved" | "closed";
 
 export type TicketPriority = "P1" | "P2" | "P3" | "P4";
 
-export type TicketCategory =
-  | "hardware"
-  | "software"
-  | "network"
-  | "account"
-  | "email"
-  | "printer"
-  | "other"
-  | "";
+export type TicketCategory = "hardware" | "software" | "network" | "account" | "email" | "printer" | "other" | "";
 
 /**
  * What the *agent* concluded. Deliberately separate from `status`, which is what
  * a human did — conflating the two is how auto-resolution rates get inflated.
  */
-export type TicketDisposition =
-  | "auto_resolved"
-  | "needs_human"
-  | "needs_input"
-  | "out_of_scope"
-  | "escalated"
-  | "";
+export type TicketDisposition = "auto_resolved" | "needs_human" | "needs_input" | "out_of_scope" | "escalated" | "";
 
 export type Ticket = {
   id: number;

@@ -128,8 +128,24 @@ export const sidebarItems: NavGroup[] = [
       {
         id: "settings",
         title: "Settings",
-        url: "/dashboard/settings",
         icon: SettingsIcon,
+        // Settings grew from one page into three: the account's own structure
+        // (departments, members) plus the agent's switches.
+        subItems: [
+          { id: "settings-overview", title: "Overview", url: "/dashboard/settings" },
+          {
+            id: "settings-departments",
+            title: "Departments",
+            url: "/dashboard/settings/departments",
+            capability: "org:read",
+          },
+          {
+            id: "settings-members",
+            title: "Members",
+            url: "/dashboard/settings/members",
+            capability: "member:read",
+          },
+        ],
       },
     ],
   },
