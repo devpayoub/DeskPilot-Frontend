@@ -24,10 +24,12 @@ export async function requireSession(): Promise<Session> {
 /**
  * Require a session **and** an active workspace.
  *
- * DeskPilot is single-tenant and `/auth/me/` always returns exactly one
- * membership, so this normally cannot fail. If it ever does, the honest
- * outcome is "not authorised", not a self-service onboarding flow this
- * product does not have.
+ * A normal member always has exactly one membership, so this normally cannot
+ * fail. It does fail for a DeskPilot platform administrator: they operate the
+ * platform rather than a customer account, so `/auth/me/` reports no
+ * memberships for them and there is no workspace to enter. The honest outcome
+ * is "not authorised", not a self-service onboarding flow this product does not
+ * have.
  */
 export async function requireTenant(): Promise<TenantContext> {
   const session = await requireSession();

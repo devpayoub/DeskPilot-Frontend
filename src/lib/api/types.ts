@@ -39,7 +39,12 @@ export type Membership = {
 export type MeResponse = {
   user: User;
   memberships: Membership[];
-  active_organization?: Membership;
+  /**
+   * Null for a DeskPilot platform administrator: they operate the platform, not
+   * a customer account, so they belong to no organisation and the console sends
+   * them to the unauthorised page rather than inventing a tenant for them.
+   */
+  active_organization?: Membership | null;
 };
 
 /** An operator org unit inside one account. Not an AD directory department. */
