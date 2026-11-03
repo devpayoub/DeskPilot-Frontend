@@ -1,13 +1,8 @@
 import type { ReactNode } from "react";
 
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-
 import { CheckCircle2Icon } from "lucide-react";
 
 import { BrandLockup } from "@/components/brand";
-import { ACCESS_COOKIE } from "@/lib/auth/cookies";
-import { isTokenExpiringSoon } from "@/lib/auth/jwt";
 
 const HIGHLIGHTS = [
   "Every answer screened before and after the model runs",
@@ -15,16 +10,15 @@ const HIGHLIGHTS = [
   "Per-request policy decisions you can audit",
 ];
 
-export default async function AuthLayout({ children }: Readonly<{ children: ReactNode }>) {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
-
-  if (accessToken && !isTokenExpiringSoon(accessToken)) {
-    // Resolved by `/dashboard` itself, so the landing page is decided in one place
-    // and follows the role rather than hardcoding a screen requesters cannot open.
-    redirect("/dashboard");
-  }
-
+/**
+ * The shell around every page under `/auth/`.
+ *
+ * It renders nothing that depends on who is signed in, and deliberately does not
+ * redirect: the reset link has to be able to show itself to a browser that already
+ * holds a session. Each page that offers to start one calls
+ * ``redirectIfSignedIn()`` on its own.
+ */
+export default function AuthLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div className="grid min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
       <aside className="relative hidden flex-col justify-between overflow-hidden bg-primary p-10 text-primary-foreground lg:flex xl:p-14">

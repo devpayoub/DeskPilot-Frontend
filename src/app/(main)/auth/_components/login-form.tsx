@@ -17,6 +17,8 @@ import { ApiError, errorMessage } from "@/lib/api/errors";
 import type { SessionPayload } from "@/lib/auth/session-server";
 import { type LoginValues, loginSchema } from "@/lib/validation/auth";
 
+import { PasswordField } from "./password-field";
+
 export function LoginForm({ nextPath }: { nextPath?: string }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -100,10 +102,9 @@ export function LoginForm({ nextPath }: { nextPath?: string }) {
                   Forgot password?
                 </Link>
               </div>
-              <Input
+              <PasswordField
                 {...field}
                 id="login-password"
-                type="password"
                 placeholder="••••••••••"
                 autoComplete="current-password"
                 aria-invalid={fieldState.invalid}

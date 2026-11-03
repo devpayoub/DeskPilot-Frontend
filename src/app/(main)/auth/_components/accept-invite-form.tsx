@@ -7,9 +7,10 @@ import Link from "next/link";
 import { CheckCircle2Icon, LoaderCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError, errorMessage } from "@/lib/api/errors";
+
+import { PasswordField } from "./password-field";
 
 const MIN_LENGTH = 8;
 
@@ -90,9 +91,8 @@ export function AcceptInviteForm({ token }: { token: string }) {
     <form onSubmit={submit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Label htmlFor="invite-password">Password</Label>
-        <Input
+        <PasswordField
           id="invite-password"
-          type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           autoComplete="new-password"
@@ -105,9 +105,8 @@ export function AcceptInviteForm({ token }: { token: string }) {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="invite-confirm">Confirm password</Label>
-        <Input
+        <PasswordField
           id="invite-confirm"
-          type="password"
           value={confirm}
           onChange={(event) => setConfirm(event.target.value)}
           autoComplete="new-password"

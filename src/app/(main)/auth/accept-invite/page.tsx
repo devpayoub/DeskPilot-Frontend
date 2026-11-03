@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import type { Metadata } from "next";
 
+import { redirectIfSignedIn } from "@/lib/auth/session-server";
+
 import { AcceptInviteForm } from "../_components/accept-invite-form";
 
 export const metadata: Metadata = {
@@ -10,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AcceptInvitePage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
+  await redirectIfSignedIn();
   const { token } = await searchParams;
 
   return (

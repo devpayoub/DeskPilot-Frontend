@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import type { Metadata } from "next";
 
+import { redirectIfSignedIn } from "@/lib/auth/session-server";
+
 import { LoginForm } from "../_components/login-form";
 
 export const metadata: Metadata = {
@@ -10,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  await redirectIfSignedIn();
   const { next } = await searchParams;
 
   return (
