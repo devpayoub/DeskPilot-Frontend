@@ -33,12 +33,15 @@ const STATE_COPY: Record<
 };
 
 export default async function SettingsPage() {
-  await requireTenant();
+  const tenant = await requireTenant();
+  const canSeeState = tenant.session.capabilities.includes("usage:read");
 
-  const killSwitch = await serverFetch<KillSwitch>("/guardrails/killswitch/").catch(
-    () => ({ state: "open" }) as KillSwitch,
-  );
-  const copy = STATE_COPY[killSwitch.state] ?? STATE_COPY.open;
+  // A refusal is not a state. The old `catch` fell back to `open`, so a service desk
+  // member — and any member once the endpoint moved behind `usage:read` — read a
+  // calm green "Open" on the one card that tells you whether the agent is stopped.
+  // Reporting "unknown" is the only honest thing left when the answer is withheld.
+  const killSwitch = canSeeState ? await serverFetch<KillSwitch>("/guardrails/killswitch/").catch(() => null) : null;
+  const copy = killSwitch ? STATE_COPY[killSwitch.state] : undefined;
 
   return (
     <div className="flex flex-col gap-5">
@@ -46,11 +49,21 @@ export default async function SettingsPage() {
         <CardContent className="flex flex-col gap-2 p-4">
           <div className="flex items-center gap-2">
             <span className="font-medium text-sm">Kill switch</span>
-            <Badge variant={copy.variant} className="font-normal">
-              {copy.label}
-            </Badge>
+            {copy ? (
+              <Badge variant={copy.variant} className="font-normal">
+                {copy.label}
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="font-normal">
+                Not visible to your role
+              </Badge>
+            )}
           </div>
-          <p className="text-muted-foreground text-sm">{copy.body}</p>
+          <p className="text-muted-foreground text-sm">
+            {copy
+              ? copy.body
+              : "Your role cannot read the agent's run state. An administrator can see it here and change it."}
+          </p>
           <p className="text-muted-foreground text-xs">
             Only an administrator can change this, and every change is audited. The console toggle lands with the
             approval work; for now use{" "}

@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { ArrowRightIcon, ShieldAlertIcon } from "lucide-react";
+import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -60,22 +61,31 @@ function Stat({
 }
 
 export default async function OverviewPage() {
-  await requireTenant();
+  const tenant = await requireTenant();
+
+  // Every card here is an account-wide number, so the whole page is `usage:read`.
+  // A requester has no business seeing cost, latency or how many actions were
+  // blocked in the account they filed a ticket in.
+  if (!tenant.session.capabilities.includes("usage:read")) {
+    redirect("/unauthorized");
+  }
+
+  // Evaluations sit one rank higher again — `eval:read` is an administrator's. Not
+  // fetching them is not the same as fetching them and showing "no runs recorded",
+  // which would report a real history as an empty one.
+  const canSeeEvals = tenant.session.capabilities.includes("eval:read");
 
   // Both are independent reads; one failing must not blank the whole dashboard.
   const [stats, evals] = await Promise.all([
     serverFetch<Stats>("/stats/"),
-    serverFetch<EvalRun[]>("/evals/runs/").catch(() => [] as EvalRun[]),
+    canSeeEvals ? serverFetch<EvalRun[]>("/evals/runs/").catch(() => [] as EvalRun[]) : Promise.resolve([]),
   ]);
 
   const latest = evals[0] ?? null;
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title="Overview"
-        description="What the agent has been doing, and how often it was stopped."
-      />
+      <PageHeader title="Overview" description="What the agent has been doing, and how often it was stopped." />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Stat
@@ -142,42 +152,44 @@ export default async function OverviewPage() {
         </CardContent>
       </Card>
 
-      <Card className="py-0">
-        <CardContent className="flex flex-col gap-3 p-4">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-medium text-sm">Latest evaluation</span>
-            <Link href="/dashboard/evals" className="text-muted-foreground text-xs underline underline-offset-4">
-              All runs
-            </Link>
-          </div>
-
-          {latest ? (
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-              <Badge variant={latest.gates_passed ? "secondary" : "destructive"} className="font-normal">
-                {latest.gates_passed ? "Gates passed" : "Gates failed"}
-              </Badge>
-              <span className="text-muted-foreground">
-                mode <span className="font-mono text-foreground">{latest.mode}</span>
-              </span>
-              <span className="text-muted-foreground">
-                triage{" "}
-                <span className="font-medium text-foreground tabular-nums">
-                  {percent(latest.metrics.triage_accuracy ?? null)}
-                </span>
-              </span>
-              <span className="text-muted-foreground">
-                cases <span className="text-foreground tabular-nums">{latest.case_count}</span>
-              </span>
-              <span className="text-muted-foreground">{formatDateTime(latest.created_at)}</span>
+      {canSeeEvals && (
+        <Card className="py-0">
+          <CardContent className="flex flex-col gap-3 p-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-medium text-sm">Latest evaluation</span>
+              <Link href="/dashboard/evals" className="text-muted-foreground text-xs underline underline-offset-4">
+                All runs
+              </Link>
             </div>
-          ) : (
-            <span className="text-muted-foreground text-sm">
-              No eval runs recorded yet. Run{" "}
-              <span className="font-mono text-foreground">make eval</span> to populate this.
-            </span>
-          )}
-        </CardContent>
-      </Card>
+
+            {latest ? (
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                <Badge variant={latest.gates_passed ? "secondary" : "destructive"} className="font-normal">
+                  {latest.gates_passed ? "Gates passed" : "Gates failed"}
+                </Badge>
+                <span className="text-muted-foreground">
+                  mode <span className="font-mono text-foreground">{latest.mode}</span>
+                </span>
+                <span className="text-muted-foreground">
+                  triage{" "}
+                  <span className="font-medium text-foreground tabular-nums">
+                    {percent(latest.metrics.triage_accuracy ?? null)}
+                  </span>
+                </span>
+                <span className="text-muted-foreground">
+                  cases <span className="text-foreground tabular-nums">{latest.case_count}</span>
+                </span>
+                <span className="text-muted-foreground">{formatDateTime(latest.created_at)}</span>
+              </div>
+            ) : (
+              <span className="text-muted-foreground text-sm">
+                No eval runs recorded yet. Run <span className="font-mono text-foreground">make eval</span> to populate
+                this.
+              </span>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

@@ -15,8 +15,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ROLE_LABELS } from "@/lib/auth/capabilities";
-import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
+import { landingPath, ROLE_LABELS } from "@/lib/auth/capabilities";
+import { visibleSidebarItems } from "@/navigation/sidebar/sidebar-items";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 import { NavMain } from "./nav-main";
@@ -27,7 +27,7 @@ export function AppSidebar({
   quota,
   ...props
 }: React.ComponentProps<typeof Sidebar> & { quota?: QuotaSnapshot | null }) {
-  const { activeOrganization, role, user } = useSession();
+  const { activeOrganization, capabilities, role, user } = useSession();
 
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
@@ -40,13 +40,16 @@ export function AppSidebar({
   const variant = isSynced ? sidebarVariant : props.variant;
   const collapsible = isSynced ? sidebarCollapsible : props.collapsible;
 
+  const navItems = visibleSidebarItems(capabilities);
+  const home = landingPath(capabilities);
+
   return (
     <Sidebar {...props} variant={variant} collapsible={collapsible}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild size="lg" tooltip={activeOrganization?.organization_name ?? "Workspace"}>
-              <Link prefetch={false} href="/dashboard/overview">
+              <Link prefetch={false} href={home}>
                 <BrandMark className="size-8" />
                 <div className="grid min-w-0 flex-1 leading-tight">
                   <span className="truncate font-semibold text-sm">
@@ -63,7 +66,7 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={sidebarItems} />
+        <NavMain items={navItems} />
       </SidebarContent>
 
       <SidebarFooter>

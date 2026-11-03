@@ -1,83 +1,33 @@
-import type { Role } from "@/lib/api/types";
+import type { Capability, Role } from "@/lib/api/types";
+
+// Re-exported so the console's existing `from "@/lib/auth/capabilities"` imports
+// keep working; the union itself lives with the other DTOs, next to `Role`.
+export type { Capability };
 
 /**
- * Role → capability map.
+ * Which role holds which capability is decided once, in Python, at
+ * `backend/apps/common/capabilities.py`, and served by `/auth/me/` as
+ * `role_capabilities`. This file used to carry a second copy of that answer and
+ * the two drifted: endpoints this table called administrator-only were open to
+ * anybody signed in, because the only thing enforcing the table was the table.
+ * So there is deliberately no role→capability map here any more — adding one is
+ * how the drift comes back.
+ */
+
+/**
+ * The session's capabilities, read out of the map the server sent.
  *
- * Mirrors the role ladder and each tool's `allowed_roles` in
- * `backend/apps/accounts/models.py` and `packages/toolcore`. This is a
- * *presentation* aid only: the API re-checks every action server-side, so a drift
- * bug here can hide a button but never grant access.
+ * An unknown role yields nothing, which is the fail-closed direction: a role the
+ * backend does not know renders no controls rather than every one of them. The
+ * API re-checks each call regardless, so a stale map can hide a button — it can
+ * never grant one.
  */
-export const CAPABILITIES = [
-  "ticket:read",
-  "ticket:write",
-  "run:trigger",
-  "tool:read",
-  "tool:invoke",
-  "approval:read",
-  "approval:decide",
-  "audit:read",
-  "usage:read",
-  "eval:read",
-  "directory:read",
-  "policy:write",
-  "killswitch:write",
-  // Tenancy. `org:read` is "see which account I am in"; the two `:manage` entries
-  // are what a *client administrator* — not a platform operator — is allowed to do
-  // inside their own account.
-  "org:read",
-  "member:read",
-  "department:manage",
-  "member:manage",
-] as const;
-
-export type Capability = (typeof CAPABILITIES)[number];
-
-/**
- * A requester sees only their own tickets. They can raise one and read it — they
- * can never trigger the agent, approve anything, or look at another person's
- * account, which is also what the API enforces.
- */
-const REQUESTER: Capability[] = ["ticket:read", "org:read"];
-
-const SERVICE_DESK: Capability[] = [
-  ...REQUESTER,
-  "ticket:write",
-  "tool:read",
-  "approval:read",
-  "audit:read",
-  "usage:read",
-  // Seeing who is in the account is a desk-level thing; changing it is not.
-  "member:read",
-];
-
-const TECHNICIAN: Capability[] = [...SERVICE_DESK, "run:trigger", "tool:invoke", "approval:decide", "directory:read"];
-
-const ADMIN: Capability[] = [
-  ...TECHNICIAN,
-  "eval:read",
-  "policy:write",
-  "killswitch:write",
-  // Adding departments and people to your own account. Scoped server-side to the
-  // organisation in the session — this flag never grants cross-tenant access.
-  "department:manage",
-  "member:manage",
-];
-
-export const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
-  REQUESTER,
-  SERVICE_DESK,
-  TECHNICIAN,
-  ADMIN,
-};
-
-export function capabilitiesForRole(role: Role | null | undefined): Capability[] {
-  if (!role) return [];
-  return ROLE_CAPABILITIES[role] ?? [];
-}
-
-export function roleCan(role: Role | null | undefined, capability: Capability): boolean {
-  return capabilitiesForRole(role).includes(capability);
+export function capabilitiesForRole(
+  roleCapabilities: Partial<Record<Role, Capability[]>> | undefined,
+  role: Role | null | undefined,
+): Capability[] {
+  if (!role || !roleCapabilities) return [];
+  return roleCapabilities[role] ?? [];
 }
 
 export const ROLE_LABELS: Record<Role, string> = {
@@ -89,3 +39,13 @@ export const ROLE_LABELS: Record<Role, string> = {
 
 /** Roles that can be assigned to a person, highest privilege last. */
 export const ASSIGNABLE_ROLES: Role[] = ["REQUESTER", "SERVICE_DESK", "TECHNICIAN", "ADMIN"];
+
+/**
+ * Where a signed-in person is sent: the first surface their own role can render.
+ *
+ * A requester holds no `usage:read`, so `/dashboard/overview` would be a page of
+ * refusals for them. Their tickets are the one surface that is actually theirs.
+ */
+export function landingPath(capabilities: readonly Capability[]): string {
+  return capabilities.includes("usage:read") ? "/dashboard/overview" : "/dashboard/tickets";
+}

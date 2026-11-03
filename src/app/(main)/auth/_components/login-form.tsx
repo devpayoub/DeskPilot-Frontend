@@ -48,12 +48,11 @@ export function LoginForm({ nextPath }: { nextPath?: string }) {
       }
 
       const session = (await response.json()) as SessionPayload;
+      // `/dashboard`, not `/dashboard/overview`: which screen a role should open is
+      // the console's answer to make, and it depends on capabilities this client
+      // does not hold.
       const destination =
-        nextPath && nextPath.startsWith("/")
-          ? nextPath
-          : session.organizationId
-            ? "/dashboard/overview"
-            : "/onboarding";
+        nextPath && nextPath.startsWith("/") ? nextPath : session.organizationId ? "/dashboard" : "/onboarding";
 
       router.replace(destination);
       router.refresh();

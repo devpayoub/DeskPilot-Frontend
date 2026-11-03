@@ -17,6 +17,33 @@
  */
 export type Role = "ADMIN" | "SERVICE_DESK" | "TECHNICIAN" | "REQUESTER";
 
+/**
+ * One thing a role may do. The names are shared with the server
+ * (`backend/apps/common/capabilities.py`); which role holds which is decided
+ * there and served to the console as `role_capabilities` below.
+ *
+ * Adding a name here without adding it to the server enum means the console
+ * silently never receives it — the backend's own test suite fails on a
+ * capability nothing enforces.
+ */
+export type Capability =
+  | "ticket:read"
+  | "run:trigger"
+  | "tool:read"
+  | "tool:invoke"
+  | "approval:read"
+  | "approval:decide"
+  | "audit:read"
+  | "usage:read"
+  | "eval:read"
+  | "directory:read"
+  | "policy:write"
+  | "killswitch:write"
+  | "org:read"
+  | "member:read"
+  | "department:manage"
+  | "member:manage";
+
 export type User = {
   id: string;
   email: string;
@@ -45,6 +72,13 @@ export type MeResponse = {
    * them to the unauthorised page rather than inventing a tenant for them.
    */
   active_organization?: Membership | null;
+  /**
+   * The role → capability map the API itself enforces, served by
+   * `backend/apps/common/capabilities.py`. The console renders this instead of
+   * keeping a table of its own: two copies drifted until the server refused a
+   * call the client's table insisted the role could make.
+   */
+  role_capabilities: Partial<Record<Role, Capability[]>>;
 };
 
 /** An operator org unit inside one account. Not an AD directory department. */

@@ -70,6 +70,10 @@ export const sidebarItems: NavGroup[] = [
         title: "Overview",
         url: "/dashboard/overview",
         icon: LayoutDashboardIcon,
+        // Same capability the page itself guards on. A requester's landing screen
+        // is their tickets, so offering Overview here would be an invitation to
+        // `/unauthorized`.
+        capability: "usage:read",
       },
       {
         id: "tickets",
@@ -130,7 +134,12 @@ export const sidebarItems: NavGroup[] = [
         title: "Settings",
         icon: SettingsIcon,
         // Settings grew from one page into three: the account's own structure
-        // (departments, members) plus the agent's switches.
+        // (departments, members) plus the agent's switches. The section opens at
+        // the service desk — how the agent is configured is not something a
+        // person who only raises tickets is offered. The parent's capability also
+        // decides whether the group appears at all, so a requester is left with
+        // their tickets and nothing else.
+        capability: "usage:read",
         subItems: [
           { id: "settings-overview", title: "Overview", url: "/dashboard/settings" },
           {
@@ -150,3 +159,45 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
 ];
+
+/** `true` when this session's capabilities allow the entry. */
+function held(item: { capability?: Capability }, capabilities: readonly Capability[]): boolean {
+  return !item.capability || capabilities.includes(item.capability);
+}
+
+/**
+ * The navigation this session may actually use.
+ *
+ * Declaring `capability` above used to be decoration: the sidebar rendered
+ * `sidebarItems` verbatim, so a requester was offered Approvals, Audit, Directory
+ * and Members and met a refusal on every one. Hiding is a courtesy — the API
+ * still checks each call — but a menu that lists what you cannot do is a menu
+ * that teaches you that the product does not know what you are.
+ *
+ * A group whose every entry was dropped disappears too, and so does a parent
+ * left with no reachable sub-item, rather than opening onto nothing.
+ */
+export function visibleSidebarItems(capabilities: readonly Capability[]): NavGroup[] {
+  const visible: NavGroup[] = [];
+
+  for (const group of sidebarItems) {
+    const items: NavMainItem[] = [];
+
+    for (const item of group.items) {
+      if (!held(item, capabilities)) continue;
+
+      if (!item.subItems) {
+        items.push(item);
+        continue;
+      }
+
+      const subItems = item.subItems.filter((sub) => held(sub, capabilities));
+      // A parent whose every child was dropped would open onto nothing.
+      if (subItems.length > 0) items.push({ ...item, subItems });
+    }
+
+    if (items.length > 0) visible.push({ ...group, items });
+  }
+
+  return visible;
+}

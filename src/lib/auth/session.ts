@@ -5,8 +5,8 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 
 import { serverFetch } from "@/lib/api/server";
-import type { Membership, MeResponse, Role } from "@/lib/api/types";
-import { type Capability, capabilitiesForRole } from "@/lib/auth/capabilities";
+import type { Capability, Membership, MeResponse, Role } from "@/lib/api/types";
+import { capabilitiesForRole } from "@/lib/auth/capabilities";
 import { ACCESS_COOKIE, ORG_COOKIE } from "@/lib/auth/cookies";
 
 export type SessionUser = {
@@ -58,6 +58,8 @@ export const getSession = cache(async (): Promise<Session | null> => {
     activeOrganizationId: activeOrganization?.organization_id ?? null,
     activeOrganization,
     role: activeOrganization?.role ?? null,
-    capabilities: capabilitiesForRole(activeOrganization?.role ?? null),
+    // Served by the API, not derived from a table kept here: the map is the same
+    // one the permission classes checked this request against.
+    capabilities: capabilitiesForRole(me.role_capabilities, activeOrganization?.role ?? null),
   };
 });

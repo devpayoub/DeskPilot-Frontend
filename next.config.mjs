@@ -9,15 +9,10 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
-  async redirects() {
-    return [
-      {
-        source: "/dashboard",
-        destination: "/dashboard/overview",
-        permanent: false,
-      },
-    ];
-  },
+  // No `/dashboard` redirect here. A static one always landed on
+  // `/dashboard/overview`, which is the screen a requester may not open — and it
+  // fired before any route code could ask who was calling. `/dashboard/page.tsx`
+  // decides the landing screen from the session's capabilities instead.
 };
 
 export default nextConfig;

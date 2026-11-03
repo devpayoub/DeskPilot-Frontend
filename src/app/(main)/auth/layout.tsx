@@ -20,7 +20,9 @@ export default async function AuthLayout({ children }: Readonly<{ children: Reac
   const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
 
   if (accessToken && !isTokenExpiringSoon(accessToken)) {
-    redirect("/dashboard/overview");
+    // Resolved by `/dashboard` itself, so the landing page is decided in one place
+    // and follows the role rather than hardcoding a screen requesters cannot open.
+    redirect("/dashboard");
   }
 
   return (
