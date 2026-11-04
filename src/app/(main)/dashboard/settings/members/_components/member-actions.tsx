@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { CheckIcon, CopyIcon, LoaderCircleIcon, PencilIcon, RefreshCwIcon, UserMinusIcon } from "lucide-react";
 
+import { PasswordField } from "@/components/password-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -47,6 +48,9 @@ export function MemberActions({ member, departments }: { member: OrganizationMem
   // Password reset. Separate from the save button on purpose: it is a different
   // decision with a different consequence (the old password stops working now).
   const [passwordInput, setPasswordInput] = useState("");
+  // Shown from the start, like the add-member dialog: this is a credential the
+  // administrator is about to hand over, not one being typed for their own use.
+  const [reveal, setReveal] = useState(true);
   const [issuedPassword, setIssuedPassword] = useState("");
   const [busyPassword, setBusyPassword] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -213,15 +217,18 @@ export function MemberActions({ member, departments }: { member: OrganizationMem
             </div>
 
             <div className="flex gap-2">
-              <Input
-                id="member-new-password"
-                value={passwordInput}
-                onChange={(event) => setPasswordInput(event.target.value)}
-                placeholder="Leave empty to generate one"
-                autoComplete="new-password"
-                className="font-mono"
-                disabled={busy !== null || busyPassword}
-              />
+              <div className="min-w-0 flex-1">
+                <PasswordField
+                  id="member-new-password"
+                  value={passwordInput}
+                  onChange={(event) => setPasswordInput(event.target.value)}
+                  placeholder="Leave empty to generate one"
+                  autoComplete="new-password"
+                  disabled={busy !== null || busyPassword}
+                  reveal={reveal}
+                  onRevealChange={setReveal}
+                />
+              </div>
               <Button type="button" variant="outline" onClick={resetPassword} disabled={busy !== null || busyPassword}>
                 {busyPassword ? <LoaderCircleIcon className="size-4 animate-spin" /> : null}
                 Set

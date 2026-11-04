@@ -15,7 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { ApiError, errorMessage } from "@/lib/api/errors";
 import { PASSWORD_MIN_LENGTH, type ResetPasswordValues, resetPasswordSchema } from "@/lib/validation/auth";
 
-import { PasswordField } from "./password-field";
+import { PasswordField } from "@/components/password-field";
 
 /**
  * Step two of a password reset: the link from the email, and a new password.

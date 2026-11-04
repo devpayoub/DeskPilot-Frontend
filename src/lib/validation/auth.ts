@@ -60,9 +60,47 @@ export const resetPasswordSchema = z
     message: "Passwords do not match.",
   });
 
+// ---------------------------------------------------------------------------
+// Account self-service: the name on a profile, and a password change from inside
+// the console. Both mirror the API's own refusal, so the message appears next to
+// the box before a round trip — except the ones only the server can know.
+// ---------------------------------------------------------------------------
+
+/** The column's ceiling, and the PATCH handler's. */
+export const DISPLAY_NAME_MAX_LENGTH = 150;
+
+export const profileSchema = z.object({
+  display_name: z
+    .string()
+    .trim()
+    .max(DISPLAY_NAME_MAX_LENGTH, { message: `Keep it under ${DISPLAY_NAME_MAX_LENGTH} characters.` }),
+});
+
+export const changePasswordSchema = z
+  .object({
+    current_password: z.string().min(1, { message: "Enter your current password." }),
+    password: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, { message: `Use at least ${PASSWORD_MIN_LENGTH} characters.` })
+      .max(128, { message: "Use 128 characters or fewer." }),
+    confirm_password: z.string(),
+  })
+  .refine((values) => values.password === values.confirm_password, {
+    path: ["confirm_password"],
+    message: "Passwords do not match.",
+  })
+  .refine((values) => values.password !== values.current_password, {
+    path: ["password"],
+    // Checked here because the server refuses it too, and for the same reason: a
+    // change to the same password would sign out every other device for nothing.
+    message: "Use a password different from your current one.",
+  });
+
 export type LoginValues = z.infer<typeof loginSchema>;
 export type SignupEmailValues = z.infer<typeof signupEmailSchema>;
 export type SignupCodeValues = z.infer<typeof signupCodeSchema>;
 export type SignupAccountValues = z.infer<typeof signupAccountSchema>;
 export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
+export type ProfileValues = z.infer<typeof profileSchema>;
+export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;

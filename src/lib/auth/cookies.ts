@@ -11,8 +11,8 @@ export const ORG_COOKIE = "ap_org";
 
 /** Access tokens live 15 minutes on the backend. */
 export const ACCESS_MAX_AGE = 60 * 15;
-/** Refresh tokens live 7 days on the backend. */
-export const REFRESH_MAX_AGE = 60 * 60 * 24 * 7;
+/** Refresh tokens live 1 day on the backend (`SIMPLE_JWT.REFRESH_TOKEN_LIFETIME`). */
+export const REFRESH_MAX_AGE = 60 * 60 * 24;
 /** Remembered organization selection. */
 export const ORG_MAX_AGE = 60 * 60 * 24 * 30;
 

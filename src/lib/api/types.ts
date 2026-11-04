@@ -48,8 +48,16 @@ export type User = {
   id: string;
   email: string;
   full_name: string;
+  /** Empty when the person never set one. `full_name` falls back to the email. */
+  display_name: string;
   is_email_verified: boolean;
   date_joined: string | null;
+  /**
+   * When this account's password was last set, or null for an account that predates
+   * the record. Nothing here guesses: an absent timestamp is the honest answer, and
+   * `date_joined` is not the same event.
+   */
+  password_updated_at: string | null;
   is_active: boolean;
 };
 
@@ -116,6 +124,42 @@ export type OrganizationMember = {
 export type LoginResponse = {
   access: string;
   refresh: string;
+  user: User;
+};
+
+/**
+ * One sign-in, as the API's session ledger reports it.
+ *
+ * `jti` is the refresh token's id — a label, safe to show and to send back for a
+ * revoke. There is deliberately no device or address: SimpleJWT's ledger holds a
+ * signed claim, not a browser fingerprint, and the security page would be inventing
+ * the difference.
+ */
+export type SignIn = {
+  jti: string;
+  signed_in_at: string | null;
+  expires_at: string;
+  current: boolean;
+};
+
+export type SessionsResponse = {
+  sessions: SignIn[];
+  password_updated_at: string | null;
+};
+
+/**
+ * What `POST /auth/change-password/` answers, read by that route on the server.
+ *
+ * The two tokens are for the cookie jar, not the page: the BFF stores them and
+ * forwards only `revoked_sessions` and `user`. A browser that can read a refresh
+ * token out of a response body is one XSS bug away from handing it over, which is
+ * the whole reason the session lives in an httpOnly cookie.
+ */
+export type ChangePasswordResponse = {
+  access: string;
+  refresh: string;
+  /** Sign-ins this change ended — including the one this tab held a moment ago. */
+  revoked_sessions: number;
   user: User;
 };
 

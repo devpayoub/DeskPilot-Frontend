@@ -9,14 +9,19 @@ const TABS = [
   { href: "/dashboard/settings", label: "Overview" },
   { href: "/dashboard/settings/departments", label: "Departments" },
   { href: "/dashboard/settings/members", label: "Members", needsMemberRead: true },
+  { href: "/dashboard/settings/account", label: "Account" },
+  { href: "/dashboard/settings/security", label: "Security" },
 ] as const;
 
 /**
  * Route-backed tabs.
  *
- * Not the `Tabs` component: these are three URLs, not three panels. Making them
- * links means the browser's back button, a bookmark and a shared link all do the
- * obvious thing.
+ * Not the `Tabs` component: these are URLs, not panels. Making them links means the
+ * browser's back button, a bookmark and a shared link all do the obvious thing.
+ *
+ * Account and Security are here for everybody, and filtered by nothing, because they
+ * edit the signed-in person rather than the workspace — a requester with no
+ * permissions at all still needs to be able to change their own password.
  */
 export function SettingsNav({ canReadMembers }: { canReadMembers: boolean }) {
   const pathname = usePathname();

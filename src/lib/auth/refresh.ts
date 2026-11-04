@@ -31,7 +31,11 @@ export async function refreshTokens(refreshToken: string): Promise<RefreshResult
 
 async function performRefresh(refreshToken: string): Promise<RefreshResult | null> {
   try {
-    const response = await fetch(`${env.apiBaseUrl}/api/v1/auth/token/refresh/`, {
+    // `/auth/refresh/`, not the SimpleJWT default `/auth/token/refresh/` — the
+    // backend mounts it under its own name. Worth saying because any path
+    // mistake looks exactly like an expired session from here: a non-2xx answer
+    // and a silent logout, with nothing in the response to distinguish them.
+    const response = await fetch(`${env.apiBaseUrl}/api/v1/auth/refresh/`, {
       method: "POST",
       headers: { "content-type": "application/json", accept: "application/json" },
       body: JSON.stringify({ refresh: refreshToken }),

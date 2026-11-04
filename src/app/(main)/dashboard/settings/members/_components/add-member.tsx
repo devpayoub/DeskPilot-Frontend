@@ -4,8 +4,9 @@ import { type FormEvent, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { CheckIcon, CopyIcon, EyeIcon, EyeOffIcon, LoaderCircleIcon, RefreshCwIcon, UserPlusIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, LoaderCircleIcon, RefreshCwIcon, UserPlusIcon } from "lucide-react";
 
+import { PasswordField } from "@/components/password-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -49,6 +50,8 @@ export function AddMember({ departments }: { departments: Department[] }) {
   const [role, setRole] = useState<Role>("REQUESTER");
   const [departmentId, setDepartmentId] = useState(NO_DEPARTMENT);
   const [password, setPassword] = useState("");
+  // Starts shown: this field is about to hold a credential that gets read out or
+  // copied, and hiding it would be a joke the administrator has to click through.
   const [reveal, setReveal] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -227,28 +230,17 @@ export function AddMember({ departments }: { departments: Department[] }) {
                   Generate
                 </Button>
               </div>
-              <div className="flex gap-2">
-                <Input
-                  id="member-password"
-                  type={reveal ? "text" : "password"}
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Leave empty to generate one"
-                  autoComplete="new-password"
-                  className="font-mono"
-                  disabled={busy}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setReveal((value) => !value)}
-                  aria-label={reveal ? "Hide password" : "Show password"}
-                  disabled={busy}
-                >
-                  {reveal ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
-                </Button>
-              </div>
+              <PasswordField
+                id="member-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Leave empty to generate one"
+                autoComplete="new-password"
+                className="font-mono"
+                disabled={busy}
+                reveal={reveal}
+                onRevealChange={setReveal}
+              />
               <p className="text-muted-foreground text-xs">
                 At least 8 characters, and not a common one. Left empty, the server generates a strong password.
               </p>

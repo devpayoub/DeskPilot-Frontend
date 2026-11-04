@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ApiError, errorMessage } from "@/lib/api/errors";
 
-import { PasswordField } from "./password-field";
+import { PasswordField } from "@/components/password-field";
 
 const MIN_LENGTH = 8;
 

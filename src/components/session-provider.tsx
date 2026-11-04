@@ -10,7 +10,9 @@ export type SessionContextValue = {
     id: string;
     email: string;
     full_name: string;
+    display_name: string;
     is_email_verified: boolean;
+    password_updated_at: string | null;
   };
   memberships: Membership[];
   activeOrganizationId: string | null;

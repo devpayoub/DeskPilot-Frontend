@@ -71,7 +71,10 @@ export function AppSidebar({
 
       <SidebarFooter>
         <QuotaCard quota={quota ?? null} />
-        <NavUser user={{ name: user.full_name || user.email, email: user.email, avatar: "" }} />
+        <NavUser
+          organization={activeOrganization?.organization_name ?? "No workspace"}
+          email={user.email}
+        />
       </SidebarFooter>
     </Sidebar>
   );

@@ -1,34 +1,42 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { forwardAuthenticated, readJson } from "@/lib/api/forward";
+import { authorize, jsonError, persistRotation } from "@/lib/auth/server-api";
 
-import type { MeResponse } from "@/lib/api/types";
-import { ACCESS_COOKIE } from "@/lib/auth/cookies";
-import { env } from "@/lib/env";
-
-export async function GET() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
-
-  if (!accessToken) {
-    return NextResponse.json(
-      { error: { code: "not_authenticated", message: "Not signed in.", details: null, request_id: "" } },
-      { status: 401 },
-    );
+async function handle(request: Request, method: "GET" | "PATCH", body?: unknown) {
+  const caller = await authorize();
+  if (!caller) {
+    return jsonError(401, "not_authenticated", "Your session has expired. Please sign in again.");
   }
 
-  const upstream = await fetch(`${env.apiBaseUrl}/api/v1/auth/me/`, {
-    headers: { authorization: `Bearer ${accessToken}`, accept: "application/json" },
-    cache: "no-store",
+  const forwarded = await forwardAuthenticated(request, "/auth/me/", {
+    method,
+    accessToken: caller.accessToken,
+    organizationId: caller.organizationId,
+    body,
   });
+  persistRotation(forwarded.response, caller);
+  return forwarded.response;
+}
 
-  if (!upstream.ok) {
-    const text = await upstream.text();
-    return new NextResponse(text, {
-      status: upstream.status,
-      headers: { "content-type": upstream.headers.get("content-type") ?? "application/json" },
-    });
+/** The signed-in person, their accounts, and the capability map the API enforces. */
+export function GET(request: Request) {
+  return handle(request, "GET");
+}
+
+/**
+ * Change the caller's own profile.
+ *
+ * The body is forwarded as the form sent it rather than filtered down to the one
+ * editable field. That is deliberate: `/auth/me/` answers a request that includes
+ * `email` by naming it, and a proxy that quietly dropped the field would turn that
+ * explanation into a silent success — the page would say "saved" about an address
+ * that did not change. Which keys are allowed is the API's answer, so it stays in
+ * one place.
+ */
+export async function PATCH(request: Request) {
+  const body = await readJson(request);
+  if (body === null || typeof body !== "object" || Array.isArray(body)) {
+    return jsonError(400, "invalid_body", "Send a JSON object of the fields to change.");
   }
 
-  const me = (await upstream.json()) as MeResponse;
-  return NextResponse.json(me);
+  return handle(request, "PATCH", body);
 }

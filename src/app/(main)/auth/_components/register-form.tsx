@@ -23,7 +23,7 @@ import {
   signupEmailSchema,
 } from "@/lib/validation/auth";
 
-import { PasswordField } from "./password-field";
+import { PasswordField } from "@/components/password-field";
 
 /** Seconds between code requests — the API's `register_issue` rate is 5/min. */
 const RESEND_COOLDOWN = 60;

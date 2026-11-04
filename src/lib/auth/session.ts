@@ -13,7 +13,10 @@ export type SessionUser = {
   id: string;
   email: string;
   full_name: string;
+  display_name: string;
   is_email_verified: boolean;
+  date_joined: string | null;
+  password_updated_at: string | null;
 };
 
 export type Session = {
@@ -52,7 +55,10 @@ export const getSession = cache(async (): Promise<Session | null> => {
       id: me.user.id,
       email: me.user.email,
       full_name: me.user.full_name,
+      display_name: me.user.display_name,
       is_email_verified: me.user.is_email_verified,
+      date_joined: me.user.date_joined,
+      password_updated_at: me.user.password_updated_at,
     },
     memberships: me.memberships,
     activeOrganizationId: activeOrganization?.organization_id ?? null,

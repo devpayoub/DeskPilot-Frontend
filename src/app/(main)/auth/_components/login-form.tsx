@@ -17,7 +17,7 @@ import { ApiError, errorMessage } from "@/lib/api/errors";
 import type { SessionPayload } from "@/lib/auth/session-server";
 import { type LoginValues, loginSchema } from "@/lib/validation/auth";
 
-import { PasswordField } from "./password-field";
+import { PasswordField } from "@/components/password-field";
 
 export function LoginForm({ nextPath }: { nextPath?: string }) {
   const router = useRouter();
